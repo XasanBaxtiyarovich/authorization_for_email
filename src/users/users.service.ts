@@ -25,8 +25,8 @@ export class UsersService {
   
     const [token] = await Promise.all([
       this.jwtService.signAsync(jwtPayload, {
-        secret: process.env.Token_Key || "MyAccesVery",
-        expiresIn: process.env.Token_Time || "15h"
+        secret: process.env.TOKEN_KEY,
+        expiresIn: process.env.TOKEN_TIME
       })
     ]);
     
@@ -34,6 +34,10 @@ export class UsersService {
   }
 
   async registration(createUserDto: CreateUserDto) {
+    const deleteUser = await this.usersRepository.findBy({mail: createUserDto.mail, isActive: false});
+
+    if(deleteUser) await this.usersRepository.delete({mail: createUserDto.mail, isActive: false});
+
     const [user] = await this.usersRepository.findBy({ mail: createUserDto.mail , isActive: true});
     if(user) throw new BadRequestException('на этот email уже зарегистрирован аккаунт');
 
@@ -58,6 +62,7 @@ export class UsersService {
 
   async login(loginUserDto: LoginUserDto) {
     const [user] = await this.usersRepository.findBy({ mail: loginUserDto.mail });
+    
     if(!user) throw new BadRequestException('такого пользователя не существует или пароль не правильное');
 
     const pass = await bcrypt.compare(loginUserDto.password, user.hashed_password);

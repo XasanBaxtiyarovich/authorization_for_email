@@ -1,8 +1,9 @@
 import { ApiOperation, ApiResponse } from '@nestjs/swagger';
-import { Controller, Get, Post, Body, Param, Delete, Put, Patch } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Delete, Put, Patch, UseGuards } from '@nestjs/common';
 
 import { User } from './entities/user.entity';
 import { UsersService } from './users.service';
+import { UserGuard } from '../guards/user.guard';
 import { LoginUserDto } from './dto/login-user.dto';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -35,6 +36,7 @@ export class UsersController {
 
   @ApiOperation({summary: 'посмотреть всех пользователей'})
   @ApiResponse({status: 200, type: [User]})
+  @UseGuards(UserGuard)
   @Get('findAll')
   findAll() {
     return this.usersService.findAll();
@@ -42,6 +44,7 @@ export class UsersController {
 
   @ApiOperation({summary: 'посмотреть одну пользователя'})
   @ApiResponse({status: 200, type: User})
+  @UseGuards(UserGuard)
   @Get('find/:id')
   findOne(@Param('id') id: number) {
     return this.usersService.findByID(id);
